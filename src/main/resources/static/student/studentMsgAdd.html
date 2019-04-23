@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学生信息添加页面</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        div{
+            padding-bottom: 10px;
+            align-content: center;
+        }
+    </style>
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<div>
+    学生信息添加界面
+</div>
+
+<div>
+    欢迎：<span id="user-name-label"></span>
+</div>
+<form id="formId">
+    <div>
+        <span>学号：</span>
+        <input type="number" id="number">
+        <span id="number1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span>姓名：</span>
+        <input type="text" id="username">
+        <span id="username1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span>年龄：</span>
+        <input type="number" id="age">
+        <span id="age1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span>性别：</span>
+        <input type="text" id="sex">
+        <span id="sex1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span>专业：</span>
+        <input type="text" id="major">
+        <span id="major1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span>院系：</span>
+        <input type="text" id="colleage">
+        <span id="colleage1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span>学校：</span>
+        <input type="text" id="school">
+        <span id="school1" style="color: brown;"></span>
+    </div>
+
+</form>
+    <div>
+        <input id="btn" style="width: 50px;height: 30px;" type="button" value="添加">
+    </div>
+
+<script>
+    $(function() {
+
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data : null,
+            contentType: "application/json",
+            success: function(data) {
+                console.log(data.name);
+                // debugger
+                $("#user-name-label").html(data.name)
+            }
+        });
+
+
+
+        $("#btn").click(function() {
+
+            var number = $("#number").val();
+            var username = $("#username").val();
+            var age = $("#age").val();
+            var sex = $("#sex").val();
+            var major = $("#major").val();
+            var colleage = $("#colleage").val();
+            var school = $("#school").val();
+
+            if(number == ""){
+                $("#number1").html("学号不能为空");
+                return;
+            }
+
+            if(username == ""){
+                $("#username1").html("姓名不能为空");
+                return;
+            }
+
+            if(age == ""){
+                $("#age1").html("年龄不能为空");
+                return;
+            }
+
+            if(sex == ""){
+                $("#sex1").html("性别不能为空");
+                return;
+            }
+
+            if(major == ""){
+                $("#major1").html("专业不能为空");
+                return;
+            }
+
+            if(colleage == ""){
+                $("#colleage1").html("院系不能为空");
+                return;
+            }
+
+            if(school == ""){
+                $("#school1").html("学校不能为空");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/student/addMsg",
+                dataType: "json", //return dataType: text or json
+                data : JSON.stringify({"number":number,"name":username,"age":age,"sex":sex,"major":major,"colleage":colleage,"school":school}),
+                contentType: "application/json",
+                success: function(data) {
+                    console.log(data);
+                    // debugger
+                    if (data.message==="success"){
+                        alert("添加成功！");
+                        window.location.href = "../admin/showAllStudentsMsg.html";
+
+                    }else {
+                        alert("请重新添加！");
+                    }
+                    }
+                });
+
+        });
+    });
+</script>
+
+</body>
+</html>

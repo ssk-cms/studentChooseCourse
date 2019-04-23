@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册页面</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <style>
+        body{
+            text-align: center;
+            padding-top: 400px;
+            position: relative;
+            background-color: bisque;
+        }
+        div{
+            padding-bottom: 10px;
+            align-content: center;
+            /*padding-top: 400px;*/
+        }
+        body{
+            text-align: center;
+        }
+    </style>
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<div>
+    注册界面
+</div>
+<form id="formId">
+    <div>
+        <span>用户名：</span>
+        <input type="text" id="username" placeholder="请输入真实姓名">
+    </div>
+
+    <div>
+        <span>密&nbsp;&nbsp;&nbsp;码：</span>
+        <input type="text" id="password">
+    </div>
+
+    <div>
+        <span>电&nbsp;&nbsp;&nbsp;话：</span>
+        <input type="text" id="phone">
+    </div>
+
+    <div>
+        <span>邮&nbsp;&nbsp;&nbsp;箱：</span>
+        <input type="email" id="email">
+    </div>
+
+    <div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>权&nbsp;&nbsp;&nbsp;限：</span>
+        <select id="role">
+            <option>学生</option>
+            <option>教师</option>
+            <option hidden>管理员</option>
+        </select>
+    </div>
+
+</form>
+    <div>
+        <input id="btn" style="width: 50px;height: 30px;" type="button" value="注册">
+    </div>
+
+<script>
+    $(function() {
+        $("#btn").click(function() {
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var phone = $("#phone").val();
+            var email = $("#email").val();
+            var role = $("#role").val();
+
+            if(username == "" || password == "" || phone=="" || email == "" || role==""){
+                alert("全是必填项");
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/user/register",
+                dataType: "json", //return dataType: text or json
+                data : JSON.stringify({"name":username,"password":password,"phone":phone,"email":email,"access":role}),
+                contentType: "application/json",
+                success: function(data) {
+                    console.log(data);
+                    // debugger
+                    if (data.message==="success"){
+                        alert("注册成功！");
+                        window.location.href = "../student/login.html"
+
+                    }else if(data.message==="该用户已注册"){
+                        alert(data.message);
+                    }
+                    else{
+                        alert(data.message);
+                    }
+                    }
+                });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>教师中心</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <style>
+        table{
+            text-align: center;
+        }
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+        table{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+        }
+    </style>
+
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎：
+                <span id="user-name-label"></span>老师
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="teacherPersonalCenter.html">个人中心</a></li>
+                <li><a href="showStudentList.html">已选自己课程学生列表</a></li>
+                <li><a href="teacherAddCourse.html">增加课程</a></li>
+                <li><a href="showCourseMsg.html">显示已添加课程</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="addTeacherMsg">
+
+</div>
+
+<!-- 完善教师信息模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">完善信息</h4>
+            </div>
+
+            <div>
+                <span>院系：</span>
+                <input type="text" id="teacherColleage" value="">
+                <span id="teacherColleage1" style="color: brown;"></span>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="addTeacherMsg()">添加</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+
+<script>
+    $(function() {
+
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                // debugger
+                $("#user-name-label").html(data.name);
+                var teacherName = data.name;
+
+
+                /*判断老师是否是首次登录*/
+                $.ajax({
+                    type: "POST",
+                    url: "/teacher/teacherMsg",
+                    dataType: "json", //return dataType: text or json
+                    data: JSON.stringify({"name":teacherName}),
+                    contentType: "application/json",
+                    success: function (data1) {
+                        if (data1.message == "首次登录"){
+                            //如果老师是首次登录，跳出模态框，完善个人信息
+                            html = "";
+                            html += "请您点击下方按钮，完善个人信息";
+                            html += "<div><button class=\"btn btn-primary btn-lg\" data-toggle=\"modal\" data-target=\"#myModal\" value='完善'>完善信息</div>";
+                            $("#addTeacherMsg").html(html);
+                        }
+                    }
+                });
+
+            }
+        });
+
+
+
+    });
+
+    /*退出登录的ajax*/
+    function checkout() {
+        $.ajax({
+            type: "GET",
+            url: "/user/checkout",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="200"){
+                    alert("退出成功，即将跳转回登陆界面");
+                    window.location.href = "../student/login.html";
+                }else {
+                    alert("服务器错误，请联系管理员");
+                }
+            }
+        });
+    }
+    
+    /*点击添加按钮触发此函数*/
+    function addTeacherMsg() {
+
+        var colleage = $("#teacherColleage").val();
+        var teacherName = $("#user-name-label").text();
+
+        if (colleage == ""){
+            $("#teacherColleage1").html("必填");
+            return;
+        }
+        if (teacherName == ""){
+            alert("服务器出错，姓名未获取到");
+            return;
+        }
+
+        /*获取教师表，记录数*/
+        $.ajax({
+            type: "POST",
+            url: "/teacher/countMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="第一条记录"){
+                    var teacherID = data.status;
+
+                    /*添加教师信息*/
+                    $.ajax({
+                        type: "POST",
+                        url: "/teacher/addTeacherMsg",
+                        dataType: "json", //return dataType: text or json
+                        data: JSON.stringify({"colleage":colleage,"name":teacherName,"id":teacherID}),
+                        contentType: "application/json",
+                        success: function (data1) {
+                            if(data1.status=200){
+                                alert("恭喜你，你是第"+teacherID+"位完善信息成功的");
+                                window.location.reload();
+                            }else {
+                                alert(data1.data);
+                            }
+                        }
+                    });
+                }else if (data.message == "记录信息") {
+
+                    var teacherID = data.status;
+
+                    /*添加教师信息*/
+                    $.ajax({
+                        type: "POST",
+                        url: "/teacher/addTeacherMsg",
+                        dataType: "json", //return dataType: text or json
+                        data: JSON.stringify({"colleage":colleage,"name":teacherName,"id":teacherID}),
+                        contentType: "application/json",
+                        success: function (data1) {
+                            if(data1.status=200){
+                                alert("恭喜你，你是第"+teacherID+"位完善信息成功的");
+                                window.location.reload();
+                            }else {
+                                alert(data1.data);
+                            }
+                        }
+                    });
+                }else{
+                    alert("服务器错误，请联系管理员")
+                }
+            }
+        });
+
+    }
+
+
+</script>
+
+</body>
+</html>

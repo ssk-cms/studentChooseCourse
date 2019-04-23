@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>选课页面</title>
+
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <style>
+        table{
+            text-align: center;
+        }
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+        table{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+        }
+    </style>
+
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎：
+                <span id="user-name-label"></span>同学
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="userPersonalCenter.html">个人中心</a></li>
+                <!--<li><a href="studentPersonalMsgCenter.html">已选课程列表</a></li>-->
+                <li><a href="studentPersonalMsgCenter.html">学生信息中心</a></li>
+                <li><a href="chooseClass.html">选课中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div>
+    <table border="1px" cellspacing="0" >
+        <tr>
+            <th>id</th>
+            <th>课程名</th>
+            <th>课时</th>
+            <th>老师</th>
+            <th>已选人数</th>
+            <th>更新时间</th>
+            <th>
+                操作
+            </th>
+        </tr>
+        <tbody id="tr_td">
+
+        </tbody>
+
+    </table>
+</div>
+
+<div id="showAddCourse">
+    <input type="button" id="tj" value="查询">
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+
+        //从session中获取登陆用户，并显示用户名
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data.name);
+                // debugger
+                $("#user-name-label").html(data.name);
+
+                /*获取学生姓名，按照学生姓名查找到院系，再根据学生的院系查找到老师院系，从而确定能选的课程有哪些*/
+                var studentName = data.name;
+                if (studentName == ""){
+                    alert("服务器错误，未获取到教师名称");
+                    return;
+                }
+
+                //从数据库中循环获取所有课程信息，并显示
+                $("#tj").click(function() {
+                    var html ="";
+                    $.ajax({
+                        type: "POST",
+                        url: "/course/showChooseCourse",
+                        data: JSON.stringify({"name":studentName}),
+                        dataType: "json", //return dataType: text or json
+                        contentType: "application/json",
+                        success: function(data) {
+                            if (data.status == 200){
+
+                                console.log(data)
+                                for (var i=0;i<data.data.length;i++){
+                                    var id = data.data[i].id;
+                                    var courseName = data.data[i].name;/*课程名称*/
+                                    var teacherId = data.data[i].teacherId; /*授课老师*/
+                                    var number = data.data[i].studentNumber; /*已选学生人数*/
+                                    var time = data.data[i].updateTime; /*更新时间*/
+                                    var courseTime = data.data[i].time; /*课时*/
+
+                                    //按照教师id从后台查询授课老师姓名的信息。
+                                    $.ajax({
+                                        type: "POST",
+                                        async:false,
+                                        url: "/teacher/showTeacherName",
+                                        dataType: "json", //return dataType: text or json
+                                        data: JSON.stringify({"id":teacherId}),
+                                        contentType: "application/json",
+                                        success: function (data) {
+
+                                            if (data.status==100){
+                                                teacherName = data.message;
+                                            }else if (data.status == 200){
+                                                teacherName = data.data.name;
+                                            }else {
+                                                teacherName = "出错";
+                                            }
+                                        }
+                                    });
+
+                                    html += "<tr id='bottom-text'>";
+                                    html += "<td>";
+                                    html += id;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += courseName;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += courseTime;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += teacherName;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += number;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += time;
+                                    html += "</td>";
+
+                                    html += "<td>";
+
+                                    /*查询该学生该课程是否已经选过选过则显示已选，否则，可以进行选课*/
+                                    $.ajax({
+                                        type: "POST",
+                                        async:false,
+                                        url: "/student/chooseCourse", /*学生controller中路由，查询该学生是否选过该课程去选课表中查询*/
+                                        // dataType: "json", //return dataType: text or json
+                                        data: {"studentName":studentName,"courseId":id},
+                                        contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                                        success: function (data2) {
+
+                                                html += "<div id='chooseCourseButton"+i;
+                                                if(data2.status!= id){
+                                                    // consloe.log(html);
+                                                    html += "'><input type='button'  value='选课' onclick='chooseCourse(event,"+i+")'>";
+                                                }
+                                                else if(data2.status == id){
+                                                    html += "'><span style='color: darkgray;'>已选</span>";
+                                                }
+                                                }
+
+                                    });
+                                    html += "</div>";
+                                    html += "</td>";
+                                    html += "</tr>";
+
+                                }
+                                $("#tr_td").html(html);
+                            }
+                            else if(data.message == "无符合条件课程"){
+
+                                alert("您暂时无法选课，请联系管理员");/*没有老师的院系和该学生的院系一样*/
+                            }
+                            else{
+                                alert(data.message);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
+    });
+
+    //点击”选课“按钮，触发该函数
+    function chooseCourse(event,i) {
+
+        event.target; //获取事件发生的位置
+        var id = $(event.target).parents('tr').eq(0).find('td').eq(0).text(); //获取对应的信息的id
+        var studentName = $("#user-name-label").text();
+
+        /*根据学生姓名，去选课表中查询，该学生选了多少门课程,每名学生最多选5们课程*/
+        $.ajax({
+            type: "POST",
+            async:false,
+            url: "/course/studentChooseMaxCourse",
+            dataType: "json", //return dataType: text or json
+            data : {"studentName":studentName},
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            success: function(data3) {
+                console.log(data3.status);
+
+                if (data3.status == 5) {
+                    alert("你已经选了5门课，无法选课");
+                    return;
+                }
+                else if (data3.status < 5){
+
+                    /*更新选课人数之前，先判断选课人数是否已经选满，如果选满，该课程则不能继续选课*/
+                    $.ajax({
+                        type: "POST",
+                        url: "/course/toUpdate",
+                        dataType: "json", //return dataType: text or json
+                        data : JSON.stringify({"id":id}),
+                        contentType: "application/json",
+                        success: function(data) {
+
+                            if (data.message == "选课人数已满"){
+                                $("#chooseCourseButton"+i).html("<span style='color: darkgray'>已选满</span>");
+                                return;
+
+                            }else  {
+                                //根据id更新选课学生人数
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/course/chooseCourseStudentNumber",
+                                    dataType: "json", //return dataType: text or json
+                                    data : JSON.stringify({"id":id}),
+                                    contentType: "application/json",
+                                    success: function(data) {
+                                        console.log(data);
+                                        // debugger
+                                        if (data.status===200){
+                                            alert("选课成功");
+                                            window.location.reload();
+                                            return;
+                                        }else  {
+                                            alert(data.data);
+                                        }
+                                    }
+                                });
+
+                                /*同时将学生选课的信息更新进入选课表中，学生姓名，课程id*/
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/course/addChooseCourse",
+                                    dataType: "json", //return dataType: text or json
+                                    data : JSON.stringify({"studentName":studentName,"courseId":id}),
+                                    contentType: "application/json",
+                                    success: function(data) {
+                                        return;
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    /*退出登录的ajax*/
+    function checkout() {
+        $.ajax({
+            type: "GET",
+            url: "/user/checkout",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="200"){
+                    alert("退出成功，即将跳转回登陆界面");
+                    window.location.href = "../student/login.html";
+                }else {
+                    alert("服务器错误，请联系管理员");
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

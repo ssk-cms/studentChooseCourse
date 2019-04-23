@@ -1,0 +1,33 @@
+
+server:
+  port: 8888
+  use-forward-headers: true
+  tomcat:
+    uri-encoding: utf-8
+    remote-ip-header: x-forwarded-for
+    protocol-header: x-forwarded-proto
+    port-header: x-Forwarded-Port
+spring:
+#  thymeleaf:
+#    prefix: classpath:/templates/
+#    suffix: .html
+#    mode: HTML
+#    encoding: UTF-8
+#    cache: false
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  messages:
+    encoding: UTF-8
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user_msg?serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+mybatis:
+  mapper-locations:
+    - classpath:mapper/*.xml
+  type-aliases-package: com.example.demo.entity
+

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>已选课程学生列表</title>
+
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <style>
+        table{
+            text-align: center;
+        }
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+        table{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+        }
+    </style>
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎：
+                <span id="user-name-label"></span>老师
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="../student/userPersonalCenter.html">个人中心</a></li>
+                <li><a href="showStudentList.html">已选自己课程学生列表</a></li>
+                <li><a href="teacherAddCourse.html">增加课程</a></li>
+                <li><a href="showCourseMsg.html">显示已添加课程</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div>
+    <table border="1px" cellspacing="0" >
+        <tr>
+            <th>id</th>
+            <th>学生姓名</th>
+            <th>学生院系</th>
+            <th>课程</th>
+            <th>选课时间</th>
+        </tr>
+        <tbody id="tr_td">
+
+        </tbody>
+
+    </table>
+</div>
+
+<div id="showAddCourse">
+    <input type="button" id="tj" value="查询">
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+
+        //从session中获取登陆用户，并显示用户名
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data.name);
+                // debugger
+                $("#user-name-label").html(data.name);
+
+                /*获取老师姓名，按照老师姓名查找到老师id，从而找到该老师教授的课程*/
+                var teacherName = data.name;
+                if (teacherName == ""){
+                    alert("服务器错误，未获取到教师名称");
+                    return;
+                }
+
+                //从数据库中循环获取所有课程信息，并显示
+                $("#tj").click(function() {
+                    var html ="";
+                    $.ajax({
+                        type: "POST",
+                        url: "/course/chooseCourseList",
+                        data: {"teacherName":teacherName},
+                        // dataType: "json", //return dataType: text or json
+                        contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                        success: function(data) {
+                            if (data.status == 200){
+
+                                console.log(data)
+                                for (var i=0;i<data.data.length;i++){
+                                    var id = data.data[i].id;
+                                    var studentName = data.data[i].studentName;
+                                    var studentColleage = data.data[i].studentColleage;
+                                    var courseName = data.data[i].courseName;
+                                    var chooseTime = data.data[i].chooseTime;
+
+
+                                    html += "<tr id='bottom-text'>";
+                                    html += "<td>";
+                                    html += id;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += studentName;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += studentColleage;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += courseName;
+                                    html += "</td>";
+
+                                    html += "<td>";
+                                    html += chooseTime;
+                                    html += "</td>";
+                                    html += "</tr>";
+
+                                }
+                                $("#tr_td").html(html);
+                            }
+                            else if(data.message == "没有学生"){
+
+                                alert("没有学生选择您的课");
+                                return;
+                            }
+                            else{
+                                alert(data.message);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
+    });
+
+    /*退出登录的ajax*/
+    function checkout() {
+        $.ajax({
+            type: "GET",
+            url: "/user/checkout",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="200"){
+                    alert("退出成功，即将跳转回登陆界面");
+                    window.location.href = "../student/login.html";
+                }else {
+                    alert("服务器错误，请联系管理员");
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

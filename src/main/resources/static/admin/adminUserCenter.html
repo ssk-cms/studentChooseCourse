@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理中心</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <!--<link href="head.css" rel="stylesheet">-->
+
+    <style>
+        table{
+            text-align: center;
+        }
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+        table{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+        }
+    </style>
+
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎管理员：
+                <span id="user-name-label"></span>
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="adminUserCenter.html">用户中心</a></li>
+                <li><a href="showAllStudentsMsg.html">学生信息管理中心</a></li>
+                <li><a href="showAllTeachersMsg.html">教师信息管理中心</a></li>
+                <li><a href="adminSeeStudentChooseCourseMsg.html">学生选课中心</a></li>
+                <li><a href="courseMsgCenter.html">课程管理中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<br>
+<div style="background-color: bisque;">
+    <span>用户管理页面</span>
+</div>
+
+<div>
+    <table border="1px" cellspacing="0" >
+        <tr>
+            <th>id</th>
+            <th>姓名</th>
+            <th>电话</th>
+            <th>邮箱</th>
+            <th>用户权限</th>
+            <th>更新时间</th>
+            <th>
+                操作
+            </th>
+        </tr>
+        <tbody id="tr_td">
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <input type="button" id="tj" value="查询">
+    <input type="button" id="addUser" value="添加用户" data-toggle='modal' data-target='#myModa2'>
+</div>
+
+
+<!--修改用户信息的模态框-->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+                <h4 class="modal-title" id="myModalLabel">修改用户信息</h4>
+                <h5 class="modal-title" style="color: brown;">涉及真实的用户登陆信息谨慎修改！</h5>
+            </div>
+
+            <div>
+                <span hidden>id：</span>
+                <input type="number" id="userId" value="" hidden>
+            </div>
+
+            <div>
+                <span>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</span>
+                <input type="text" id="username">
+                <span id="username1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>电&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</span>
+                <input type="text" id="phone">
+                <span id="age1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：</span>
+                <input type="text" id="email">
+                <span id="sex1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>用户权限：</span>
+                <input type="text" id="access">
+                <span id="major1" style="color: brown;"></span>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateUserMsg()">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<!--添加用户的模态框-->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModa2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+                <h4 class="modal-title" id="myModalLabe2">添加用户</h4>
+                <!--<h5 class="modal-title" style="color: brown;"></h5>-->
+            </div>
+
+            <div>
+                <span>用户名：</span>
+                <input type="text" id="addUsername">
+            </div>
+
+            <div>
+                <span>密&nbsp;&nbsp;&nbsp;码：</span>
+                <input type="text" id="password">
+            </div>
+
+            <div>
+                <span>电&nbsp;&nbsp;&nbsp;话：</span>
+                <input type="text" id="addPhone">
+            </div>
+
+            <div>
+                <span>邮&nbsp;&nbsp;&nbsp;箱：</span>
+                <input type="email" id="addEmail">
+            </div>
+
+            <div>
+                <span>权&nbsp;&nbsp;&nbsp;限：</span>
+                <select id="role">
+                    <option>学生</option>
+                    <option>教师</option>
+                    <option>管理员</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="addUserMsg()">添加</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<script>
+    $(function() {
+
+        //从session中获取登陆用户，并显示用户名
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data.name);
+                // debugger
+                $("#user-name-label").html(data.name);
+            }
+        });
+
+        // 点击查询按钮，查找出所有的用户信息
+        $("#tj").click(function() {
+            var html ="";
+            $.ajax({
+                type: "POST",
+                url: "/user/showAllUsersMsg",
+                dataType: "json", //return dataType: text or json
+                success: function(data) {
+                    // console.log(data)
+                    for (var i=0;i<data.data.length;i++){
+                        var id = data.data[i].id;
+                        var name = data.data[i].name;
+                        var phone = data.data[i].phone;
+                        var email = data.data[i].email;
+                        var access = data.data[i].access;
+                        var updateTime = data.data[i].updateTime;
+
+                        html += "<tr id='bottom-text'>";
+                        html += "<td>";
+                        html += id;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += name;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += phone;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += email;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += access;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += updateTime;
+                        html += "</td>";
+
+                        html += "<td>";
+                        // html += "<input type='button' id='addButton' value='添加' onclick='addUser(event)' data-toggle='modal' data-target='#myModal'>";
+                        html += "<input type='button' id='updateButton' value='修改' onclick='toUpdate(event)' data-toggle='modal' data-target='#myModal'>";
+                        html += "<input type='button' id='deleteButton' value='删除' onclick='deleteUserMsg(event)'>";
+                        html += "</td>";
+
+                        html += "</tr>";
+                    }
+                    $("#tr_td").html(html);
+                },
+                error: function(json) {
+                    alert(json);
+                    return false;
+                }
+            });
+        });
+    });
+
+    //点击修改按钮触发该函数
+    function toUpdate(event) {
+
+        event.target; //获取事件发生的位置
+        var id = $(event.target).parents('tr').eq(0).find('td').eq(0).text(); //获取对应的信息的id
+
+        //按照id从后台查询该用户的信息。
+        $.ajax({
+            type: "GET",
+            url: "/user/toUpdate",
+            dataType: "json", //return dataType: text or json
+            data: {"id":id},
+            contentType: "application/json",
+            success: function (data) {
+
+                console.log(data);
+                //将从后台查取到的值显示到模态框中
+                $("#userId").attr("value",data.data.id);
+                $("#username").attr("value",data.data.name);
+                $("#phone").attr("value",data.data.phone);
+                $("#email").attr("value",data.data.email);
+                $("#access").attr("value",data.data.access);
+            },
+            error: function(data) {
+                alert(data);
+                return false;
+            }
+
+        });
+    }
+
+    //点击提交更改按钮触发该函数
+    function updateUserMsg() {
+
+        var id = $("#userId").val();
+        var username = $("#username").val();
+        var phone = $("#phone").val();
+        var email = $("#email").val();
+        var access = $("#access").val();
+
+        //更新user表记录
+        $.ajax({
+            type: "POST",
+            url: "/user/updateUserMsg",
+            dataType: "json", //return dataType: text or json
+            data : JSON.stringify({"id":id,"name":username,"phone":phone,"email":email,"access":access}),
+            contentType: "application/json",
+            success: function(data) {
+                console.log(data);
+                // debugger
+                if (data.message==="success"){
+                    alert("修改成功！");
+                    window.location.reload();
+                }else  {
+                    alert(data.data.message);
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    //点击添加按钮，添加用户触发的函数/**/
+    function addUserMsg() {
+
+        var username = $("#addUsername").val();
+        var password = $("#password").val();
+        var phone = $("#addPhone").val();
+        var email = $("#addEmail").val();
+        var role = $("#role").val();
+
+        //判断字段是否已填
+        if(username == "" || password == "" || phone=="" || email == "" || role==""){
+            alert("全是必填项");
+            return false;
+        }
+
+        //向服务端传入添加用户的信息，并接受返回值
+        $.ajax({
+            type: "POST",
+            url: "/user/register",
+            dataType: "json", //return dataType: text or json
+            data : JSON.stringify({"name":username,"password":password,"phone":phone,"email":email,"access":role}),
+            contentType: "application/json",
+            success: function(data) {
+                console.log(data);
+                // debugger
+                if (data.message==="success"){
+                    alert("添加成功！");
+                    window.location.reload();
+
+                }else {
+                    alert(data.message);
+                }
+            }
+        });
+    }
+
+    //点击删除按钮，触发的函数
+    function deleteUserMsg(event) {
+
+        event.target; //获取事件发生的位置
+        var id = $(event.target).parents('tr').eq(0).find('td').eq(0).text(); //获取对应的信息的id
+
+        //更新删除字段
+        $.ajax({
+            type: "POST",
+            url: "/user/delete",
+            dataType: "json", //return dataType: text or json
+            data : JSON.stringify({"id":id}),
+            contentType: "application/json",
+            success: function(data) {
+                console.log(data);
+                // debugger
+                if (data.message==="success"){
+                    alert("删除成功！");
+                    window.location.reload();
+                }else  {
+                    alert(data.data);
+                }
+            }
+        });
+    }
+
+    /*退出登录的ajax*/
+    function checkout() {
+        $.ajax({
+            type: "GET",
+            url: "/user/checkout",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="200"){
+                    alert("退出成功，即将跳转回登陆界面");
+                    window.location.href = "../student/login.html";
+                }else {
+                    alert("服务器错误，请联系管理员");
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

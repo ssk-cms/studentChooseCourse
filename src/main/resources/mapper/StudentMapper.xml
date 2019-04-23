@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.StudentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.Student">
+        <id column="student_id" property="id" />
+        <result column="student_number" property="number"/>
+        <result column="student_name" property="name"/>
+        <result column="student_age" property="age"/>
+        <result column="student_sex" property="sex"/>
+        <result column="student_major" property="major"/>
+        <result column="student_colleage" property="colleage"/>
+        <result column="student_school" property="school"/>
+        <result column="student_status" property="status"/>
+        <result column="student_time" property="time"/>
+        <result column="student_update_time" property="updateTime"/>
+        <result column="course_id" property="courseId"/>
+    </resultMap>
+
+    <!--添加学生信息sql语句-->
+    <insert id="insertStudents" parameterType="com.example.demo.entity.Student">
+-- 传入的为student对象里边有各字段
+        insert into student(student_number,student_name,student_age,student_sex,student_major,student_colleage,student_school)
+        values (#{number},#{name},#{age},#{sex},#{major},#{colleage},#{school})
+    </insert>
+
+    <!--根据id查询学生信息的sql语句-->
+    <select id="toUpdate" resultMap="BaseResultMap">
+        select * from student where student_id=#{id} and student_status = 0
+    </select>
+
+    <!--根据id更新学生信息的sql语句-->
+    <update id="updateStudentMsg" parameterType="com.example.demo.entity.Student">
+        update student set student_number=#{number},student_name=#{name},student_age=#{age},student_sex=#{sex},
+        student_major=#{major},student_colleage=#{colleage},student_school=#{school} where student_id=#{id}
+    </update>
+
+    <!--根据学生id删除学生信息-->
+    <update id="deleteStudentMsg" parameterType="com.example.demo.entity.Student">
+        update student set student_status=1 where student_id=#{id}
+    </update>
+
+
+    <!--管理员查看所有学生信息的sql语句-->
+    <!--如果后期数据太多，可以选用js动态加载100条左右的数据-->
+    <select resultMap="BaseResultMap" id="showAllStudentsMsg">
+        select * from student where student_status = 0
+    </select>
+
+    <!--根据姓名去选课表中查询是否选过该课程-->
+    <select id="chooseCourse"  resultType="java.lang.Integer">
+        select choose_course_id from choose_course where choose_student_name = #{studentName}
+        and choose_course_id = #{courseId} and choose_status=0
+    </select>
+
+</mapper>

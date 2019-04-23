@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>增加课程</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        div{
+            padding-bottom: 10px;
+            align-content: center;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎：
+                <span id="user-name-label"></span>老师
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="teacherPersonalCenter.html">个人中心</a></li>
+                <li><a href="showStudentList.html">已选自己课程学生列表</a></li>
+                <li><a href="teacherAddCourse.html">增加课程</a></li>
+                <li><a href="showCourseMsg.html">显示已添加课程</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="modal-content">
+    <div class="modal-header">
+        <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+        <h4 class="modal-title" id="myModalLabel">添加课程</h4>
+    </div>
+
+    <div >
+        <span hidden>id：</span>
+        <input type="number" id="courseId" value="" hidden>
+    </div>
+
+    <div >
+        <span >课程名：</span>
+        <input type="text" id="courseName" value="">
+        <span id="courseName1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span >课&nbsp;&nbsp;&nbsp;时：</span>
+        <input type="text" id="courseTime">
+        <span id="courseTime1" style="color: brown;"></span>
+    </div>
+
+    <div>
+        <span >人&nbsp;&nbsp;&nbsp;数：</span>
+        <input type="number" id="maxNumber" placeholder="设置选择本门课程人数">
+        <span id="maxNumber1" style="color: brown;"></span>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="addCourseMsg()">添加</button>
+    </div>
+</div><!-- /.modal-content -->
+
+
+
+
+<script>
+    $(function() {
+
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                // debugger
+                $("#user-name-label").html(data.name);
+            }
+        });
+    });
+
+    /*退出登录的ajax*/
+    function checkout() {
+        $.ajax({
+            type: "GET",
+            url: "/user/checkout",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="200"){
+                    alert("退出成功，即将跳转回登陆界面");
+                    window.location.href = "../student/login.html";
+                }else {
+                    alert("服务器错误，请联系管理员");
+                }
+            }
+        });
+    }
+    
+    /*点击添加触发的函数*/
+    function addCourseMsg() {
+
+        var courseName = $("#courseName").val();
+        var courseTime = $("#courseTime").val();
+        var maxNumber = $("#maxNumber").val();
+
+        var teacherName = $("#user-name-label").text();
+
+        if (courseName == ""){
+            $("#courseName1").html("必填");
+            return;
+        }
+        if (courseTime == ""){
+            $("#courseTime1").html("必填");
+            return;
+        }
+        if (maxNumber == ""){
+            $("#maxNumber1").html("必填");
+            return;
+        }
+        if (teacherName == ""){
+            alert("服务器错误，未获取到教师姓名");
+            return;
+        }
+
+        /*查询course表中记录，给courseID赋值*/
+        $.ajax({
+            type: "POST",
+            url: "/course/count",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="第一条记录"){
+                    var courseId = data.status;
+
+                    /*根据teacherName查取到teacherId，给teacherId赋值*/
+                    $.ajax({
+                        type: "POST",
+                        url: "/teacher/teacherMsg",
+                        dataType: "json", //return dataType: text or json
+                        data: JSON.stringify({"name":teacherName}),
+                        contentType: "application/json",
+                        success: function (data1) {
+                            if(data1.message="欢迎您"){
+
+                                var teacherId = data1.data.id;
+                                console.log(data1.data);
+
+                                console.log(courseId,teacherId,courseName,courseTime,maxNumber);
+
+                                /*添加课程信息*/
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/course/addCourseMsg",
+                                    dataType: "json", //return dataType: text or json
+                                    data: JSON.stringify({"id":courseId,"teacherID":teacherId,"name":courseName,"time":courseTime,"maxStudentNumber":maxNumber}),
+                                    contentType: "application/json",
+                                    success: function (data1) {
+                                        if(data1.status=200){
+                                            alert("课程添加成功");
+                                            window.location.reload();
+
+                                        }else {
+                                            alert(data1.data);
+                                        }
+                                    }
+                                });
+
+                            }else {
+                                alert(data1);
+                            }
+                        }
+                    });
+
+                }else if (data.message == "记录信息") {
+
+                    var courseId = data.status+1;
+
+                    /*根据teacherName查取到teacherId，给teacherId赋值*/
+                    $.ajax({
+                        type: "POST",
+                        url: "/teacher/teacherMsg",
+                        dataType: "json", //return dataType: text or json
+                        data: JSON.stringify({"name":teacherName}),
+                        contentType: "application/json",
+                        success: function (data1) {
+                            if(data1.message="欢迎您"){
+
+                                var teacherId = data1.data.id;
+                                console.log(data1.data);
+
+                                console.log(courseId,teacherId,courseName,courseTime,maxNumber);
+
+                                /*添加课程信息*/
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/course/addCourseMsg",
+                                    dataType: "json", //return dataType: text or json
+                                    data: JSON.stringify({"id":courseId,"teacherId":teacherId,"name":courseName,"time":courseTime,"maxStudentNumber":maxNumber}),
+                                    contentType: "application/json",
+                                    success: function (data1) {
+                                        if(data1.status=200){
+                                            alert("课程添加成功");
+
+                                        }else {
+                                            alert(data1.data);
+                                        }
+                                    }
+                                });
+
+                            }else {
+                                alert(data1);
+                            }
+                        }
+                    });
+                }else{
+                    alert("服务器错误，请联系管理员")
+                }
+            }
+        });
+
+    }
+</script>
+
+
+
+</body>
+</html>

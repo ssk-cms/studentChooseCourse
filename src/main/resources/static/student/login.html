@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录页面</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <style>
+        body{
+            text-align: center;
+            padding-top: 400px;
+            position: relative;
+            background-color: bisque;
+        }
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+        .button{
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<div>
+    <span style="color: black;font-size: 25px;">登录</span>
+</div>
+
+<div>
+
+    <input type="text" id="username" placeholder="请输入用户名" style="width:260px">
+    <br>
+</div>
+<div>
+
+    <input type="password" id="password" placeholder="请输入密码" style="width:260px">
+</div>
+
+<div>
+
+    <input type="text" name="vrifyCode" placeholder="请输入验证码" style="width: 160px" id="vrifyCode">
+    <img alt="验证码" onclick = "this.src='/user/defaultKaptcha?d='+new Date()*1" src="/user/defaultKaptcha" />
+</div>
+<div>
+
+</div>
+
+<div >
+    <div>
+        <input type="radio"id="generalAccess" value="学生" name="general" checked><span>学生</span>
+        <input type="radio"id="superAccess" value="管理员" name="general"><span>管理员</span>
+        <input type="radio"id="teacherAccess" value="教师" name="general"><span>教师</span>
+    </div>
+
+</div>
+
+<div class="button" >
+    <input type="button" value="登录" id="btn">
+    
+    <a href="forgetPassword.html" style="padding-left: 30px;color: darkgray;">忘记密码?</a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <a href="register.html">注册</a>
+</div>
+
+    <script>
+        $(function (){
+
+            $("#btn").click(function () {
+
+                //点击登陆后先获取用户选择的登陆权限
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var access = $('input:radio:checked').val();
+                var vrifyCode= $("#vrifyCode").val();
+                console.log(vrifyCode);
+
+                if (username == "" || password == "" || access == "" || vrifyCode == ""){
+                    alert("全部必填不能为空");
+                }else{
+                    //验证码验证路由
+                    $.ajax({
+                        type : "post",
+                        url : "/user/imgvrifyControllerDefaultKaptcha",
+                        data: vrifyCode,
+                        // datatype : "json",
+                        contentType : "application/x-www-form-urlencoded",
+                        success:function (data) {
+                            console.log(data);
+                            // debugger
+                            if (data.message == "错误的验证码"){
+                                alert(data.message);
+                            }else  if (data.status == 200) {
+                                //登陆传参
+                                $.ajax({
+                                    type : "post",
+                                    url : "/user/login",
+                                    datatype : "json",
+                                    data : JSON.stringify({"name":username,"password":password,"access":access}),
+                                    contentType : "application/json",
+                                    success:function (data) {
+                                        // debugger
+                                        if (data == ""){
+                                            alert("用户名或密码不正确或登陆身份错误，请重新输入");
+                                        }else  if (data.data.access == "学生") {
+                                            window.location.href = "../student/userIndex.html";
+                                        }else if (data.data.access == "管理员"){
+                                            window.location.href = "../admin/adminCenter.html";
+                                        }else if (data.data.access == "教师"){
+                                            window.location.href = "../teacher/TeacherCenter.html";
+                                        }
+                                        else{
+                                            alert("服务器错误");
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

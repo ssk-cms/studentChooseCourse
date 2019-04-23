@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.TeacherMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.Teacher">
+        <id column="id" property="id" />
+        <result column="teacher_name" property="name"/>
+        <result column="teacher_colleage" property="colleage"/>
+        <result column="course_id" property="courseId"/>
+        <result column="teacher_status" property="status"/>
+        <result column="teacher_update_time" property="updateTime"/>
+    </resultMap>
+
+    <!--根据传入的用户名去教师表查看该用户是否补全了教师信息-->
+    <select id="selectTeacherMsg" parameterType="com.example.demo.entity.Teacher" resultMap="BaseResultMap">
+        select * from teacher where teacher_name = #{name} and teacher_status = 0
+    </select>
+
+    <!--查看教师表中有几条记录，然后id跟据这个数字增加-->
+    <select id="countMsg" resultType="java.lang.Integer">
+        select count(id) from teacher and teacher_status = 0
+    </select>
+
+    <!--添加老师信息-->
+    <insert id="addTeacherMsg" parameterType="com.example.demo.entity.Teacher">
+      insert into teacher(id,teacher_name,teacher_colleage) values (#{id},#{name},#{colleage})
+    </insert>
+
+    <!--根据传入的教师ID查看教师信息-->
+    <select id="showTeacherName" parameterType="com.example.demo.entity.Teacher" resultMap="BaseResultMap">
+        select * from teacher where id=#{id} and teacher_status = 0
+    </select>
+
+    <!--获取所有老师信息-->
+    <select id="showAllTeachersMsg" resultMap="BaseResultMap" >
+        select id,teacher_name,teacher_colleage,teacher_update_time from teacher where teacher_status = 0
+    </select>
+
+    <!--修改教师信息-->
+    <update id="updateTeacherMsg" parameterType="com.example.demo.entity.Teacher">
+        update teacher set teacher_name=#{name},teacher_colleage=#{colleage} where id=#{id} and teacher_status=0
+    </update>
+
+    <!--删除老师信息-->
+    <update id="deleteTeacherMsg" parameterType="com.example.demo.entity.Teacher">
+        update teacher set teacher_status=1 where id=#{id} and teacher_status=0
+    </update>
+
+
+
+
+
+</mapper>

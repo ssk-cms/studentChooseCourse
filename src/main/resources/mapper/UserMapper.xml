@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.User">
+        <id column="user_id" property="id" />
+        <result column="user_name" property="name"/>
+        <result column="user_password" property="password"/>
+        <result column="user_phone" property="phone"/>
+        <result column="user_email" property="email"/>
+        <result column="user_access" property="access"/>
+        <result column="user_time" property="time"/>
+        <result column="user_status" property="status"/>
+        <result column="user_update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap2" type="com.example.demo.entity.Student">
+        <id column="student_id" property="id" />
+        <result column="student_number" property="number"/>
+        <result column="student_name" property="name"/>
+        <result column="student_age" property="age"/>
+        <result column="student_sex" property="sex"/>
+        <result column="student_major" property="major"/>
+        <result column="student_colleage" property="colleage"/>
+        <result column="student_school" property="school"/>
+        <result column="student_status" property="status"/>
+        <result column="student_time" property="time"/>
+        <result column="student_update_time" property="updateTime"/>
+    </resultMap>
+
+    <!--注册sql语句-->
+    <insert id="insertUsers" parameterType="com.example.demo.entity.User">
+-- 传入的为user对象里边有各字段
+        insert into user(user_name,user_password,user_phone,user_email,user_access)
+        values (#{name},#{password},#{phone},#{email},#{access})
+    </insert>
+
+    <!--登陆sql语句-->
+    <select id="login" resultMap="BaseResultMap" parameterType="com.example.demo.entity.User">
+        select * from user where user_name=#{name} and user_status=0 and user_access=#{access}
+    </select>
+
+    <!--查询用户是否存在sql语句-->
+    <select id="findUser" resultType="com.example.demo.entity.User">
+        select * from user where user_name=#{name} and user_status=0
+    </select>
+
+    <!--查询所有的已经注册的用户-->
+    <select id="showAllUsersMsg" resultMap="BaseResultMap">
+        select * from user where user_status=0
+    </select>
+
+    <!--根据用户的id查找用户信息-->
+    <select id="toUpdate" resultMap="BaseResultMap" parameterType="Integer">
+        select * from user where user_id = #{id} and user_status=0
+    </select>
+
+    <!--根据用户id更新表记录-->
+    <update id="updateUserMsg" parameterType="com.example.demo.entity.User">
+        update user set user_phone=#{phone},user_email=#{email}
+        where user_id=#{id}
+    </update>
+
+    <!--根据用户id删除该记录（状态位删除）-->
+    <update id="deleteUserMsg" parameterType="com.example.demo.entity.User">
+        update user set user_status=1 where user_id=#{id}
+    </update>
+
+    <!--通过用户名去学生信息表中查找该学生所注册的信息-->
+    <select id="crossUserIdFindStudentMsg" resultMap="BaseResultMap2" parameterType="com.example.demo.entity.User">
+        select * from student where student_name= #{name}
+        and student_status=0
+    </select>
+
+    <!--通过用户名去查找该用户的信息-->
+    <select id="crossNameFindUserMsg" resultMap="BaseResultMap" parameterType="com.example.demo.entity.User">
+        select * from user where user_name = #{name} and user_status=0
+    </select>
+
+    <!--找回密码-->
+    <select id="findPassword" resultMap="BaseResultMap" parameterType="com.example.demo.entity.User">
+        select user_password from user where user_name=#{name} and user_phone=#{phone} and user_status = 0
+    </select>
+</mapper>

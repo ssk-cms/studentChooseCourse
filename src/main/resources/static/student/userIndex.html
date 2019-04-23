@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户首页</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="../js/jquery2.0.js"></script>
+    <style>
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+    </style>
+    <link href="../css/head.css" rel="stylesheet">
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">欢迎：
+                        <span id="user-name-label"></span>
+                    </a>
+                </div>
+                <div>
+                    <ul class="nav navbar-nav">
+                        <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                        <li><a href="userPersonalCenter.html">个人中心</a></li>
+                        <li><a href="studentPersonalMsgCenter.html">学生信息中心</a></li>
+                        <li><a href="chooseClass.html">选课中心</a></li>
+                        <!--<li><a href="studentPersonalMsgCenter.html">已选课程列表</a></li>-->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    <script>
+        $(function() {
+
+            $.ajax({
+                type: "GET",
+                url: "/user/userMsg",
+                dataType: "json", //return dataType: text or json
+                data: null,
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data.name);
+                    // debugger
+                    $("#user-name-label").html(data.name)
+                }
+            });
+        });
+        
+        /*退出登录的ajax*/
+        function checkout() {
+            $.ajax({
+                type: "GET",
+                url: "/user/checkout",
+                dataType: "json", //return dataType: text or json
+                data: null,
+                contentType: "application/json",
+                success: function (data) {
+                    if(data.message=="200"){
+                        alert("退出成功，即将跳转回登陆界面");
+                        window.location.href = "login.html";
+                    }else {
+                        alert("服务器错误，请联系管理员");
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

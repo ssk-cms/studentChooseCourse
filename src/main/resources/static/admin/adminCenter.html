@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员首页</title>
+    <script src="../js/jquery2.0.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎管理员：
+                <span id="user-name-label"></span>
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="adminUserCenter.html">用户中心</a></li>
+                <li><a href="showAllStudentsMsg.html">学生信息管理中心</a></li>
+                <li><a href="showAllTeachersMsg.html">教师信息管理中心</a></li>
+                <li><a href="adminSeeStudentChooseCourseMsg.html">学生选课中心</a></li>
+                <li><a href="courseMsgCenter.html">课程管理中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+    <script>
+        $(function() {
+
+            $.ajax({
+                type: "GET",
+                url: "/user/userMsg",
+                dataType: "json", //return dataType: text or json
+                data: null,
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data.name);
+                    // debugger
+                    $("#user-name-label").html(data.name)
+                }
+            });
+        });
+
+        /*退出登录的ajax*/
+        function checkout() {
+            $.ajax({
+                type: "GET",
+                url: "/user/checkout",
+                dataType: "json", //return dataType: text or json
+                data: null,
+                contentType: "application/json",
+                success: function (data) {
+                    if(data.message=="200"){
+                        alert("退出成功，即将跳转回登陆界面");
+                        window.location.href = "../student/login.html";
+                    }else {
+                        alert("服务器错误，请联系管理员");
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

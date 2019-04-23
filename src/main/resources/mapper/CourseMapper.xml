@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.CourseMapper">
+
+    <!-- 课程信息通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.Course">
+        <id column="id" property="id" />
+        <result column="course_name" property="name"/>
+        <result column="teacher_id" property="teacherId"/>
+        <result column="course_status" property="status"/>
+        <result column="course_time" property="time"/>
+        <result column="course_update_time" property="updateTime"/>
+        <result column="max_student_number" property="maxStudentNumber"/>
+        <result column="course_student_number" property="studentNumber"/>
+    </resultMap>
+
+    <!-- 教师信息通用查询映射结果 -->
+    <resultMap id="BaseResultMap1" type="com.example.demo.entity.Teacher">
+        <id column="id" property="id" />
+        <result column="teacher_name" property="name"/>
+        <result column="teacher_colleage" property="colleage"/>
+        <result column="course_id" property="courseId"/>
+        <result column="teacher_status" property="status"/>
+        <result column="teacher_update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 教师查看选择自己课程学生列表通用查询映射结果 -->
+    <resultMap id="BaseResultMap2" type="com.example.demo.entity.TeacherSeeCourseList">
+        <id column="student_id" property="id" />
+        <result column="student_name" property="studentName"/>
+        <result column="student_colleage" property="studentColleage"/>
+        <result column="course_name" property="courseName"/>
+        <result column="choose_time" property="chooseTime"/>
+    </resultMap>
+
+    <!--管理员查看所有学生选课信息通用查询映射结果 -->
+    <resultMap id="BaseResultMap3" type="com.example.demo.entity.adminSeeStudentChooseCourseMsg">
+        <result column="student_name" property="studentName"/>
+        <result column="teacher_name" property="teacherName"/>
+        <result column="course_name" property="courseName"/>
+        <result column="choose_time" property="chooseTime"/>
+        <result column="max_student_number" property="maxStudentNumber"/>
+        <result column="course_student_number" property="chooseCourseStudentNumber"/>
+    </resultMap>
+
+    <!--添加课程信息-->
+    <insert id="addCourse" parameterType="com.example.demo.entity.Course">
+        insert into course(id,course_name,teacher_id,course_time,max_student_number)
+        values (#{id},#{name},#{teacherId},#{time},#{maxStudentNumber})
+    </insert>
+
+    <!--统计表中有几条记录-->
+    <select id="count" resultType="java.lang.Integer" >
+        select count(id) from course where course_status=0
+    </select>
+
+    <!--跟据老师姓名查询该老师的课程信息-->
+    <select id="showCourseMsg" resultMap="BaseResultMap" parameterType="com.example.demo.entity.Teacher">
+        select * from course where teacher_id=
+        (select id from teacher where teacher_name=#{name}) and course_status=0
+    </select>
+
+    <!--根据课程id查询该课程的信息-->
+    <select id="toUpdate" resultMap="BaseResultMap" parameterType="com.example.demo.entity.Course">
+        select * from course where id = #{id} and course_status=0
+    </select>
+
+    <!--更新课程记录-->
+    <update id="updateCourseMsg" parameterType="com.example.demo.entity.Course">
+        update course set course_name=#{name},course_time=#{time},max_student_number=#{maxStudentNumber}
+        where id=#{id}
+    </update>
+
+    <!--删除表记录-->
+    <update id="deleteCourseMsg" parameterType="com.example.demo.entity.Course">
+        update course set course_status = 1 where id=#{id}
+    </update>
+
+    <!--根据学生姓名查找到学生院系，根据学生院系=老师院系，查找出符合条件的课程信息-->
+    <select id="showChooseCourse" parameterType="com.example.demo.entity.Student" resultMap="BaseResultMap">
+        select * from course where teacher_id=
+        (select id from teacher where teacher_colleage=
+        (select student_colleage from student where student_name=#{name})) and course_status = 0
+    </select>
+
+    <!--更新学生选课人数-->
+    <update id="chooseCourseStudentNumber" parameterType="com.example.demo.entity.Course" >
+        update course set course_student_number = course_student_number + 1 where id=#{id} and course_status = 0
+    </update>
+
+    <!--更新选课表记录-->
+    <insert id="addChooseCourse" parameterType="com.example.demo.entity.ChooseCourse">
+      insert into choose_course(choose_student_name,choose_course_id) values (#{studentName},#{courseId})
+    </insert>
+
+    <!--查看选课表中学生选了几门课，最多选5们课-->
+    <select id="studentChooseMaxCourse" resultType="java.lang.Integer">
+        select count(id) from choose_course where choose_student_name = #{name}
+    </select>
+
+    <!--根据教师姓名，查看选择该老师课程的学生和选择的对应的课程-->
+    <select id="chooseCourseList" resultMap="BaseResultMap2" parameterType="java.lang.String">
+
+              select s.student_id,s.student_name,s.student_colleage,c.course_name,ch.choose_time from student s
+              left join choose_course ch on ch.choose_student_name = s.student_name
+              left join course c on ch.choose_course_id = c.id
+              left join teacher t on t.id = c.teacher_id
+              where t.teacher_name = #{TeacherName}
+    </select>
+
+
+    <!--管理员查看学生选课情况-->
+    <select id="adminSeeStudentChooseCourseMsg" resultMap="BaseResultMap3">
+
+        select s.student_name,t.teacher_name,c.course_name,ch.choose_time,c.max_student_number,c.course_student_number from student s
+            left join choose_course ch on ch.choose_student_name = s.student_name
+            left join course c on ch.choose_course_id = c.id
+            left join teacher t on t.id = c.teacher_id
+            group by ch.choose_course_id,s.student_name,ch.choose_time
+
+    </select>
+
+    <!--查询所有课程信息-->
+    <select id="showAllCourseMsg" resultMap="BaseResultMap">
+        select * from course where course_status=0
+    </select>
+
+
+</mapper>

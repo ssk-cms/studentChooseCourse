@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<script src="../js/jquery2.0.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- Bootstrap JS -->
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <title>学生信息信息展示</title>
+
+    <!--<link href="head.css" rel="stylesheet">-->
+
+    <style>
+        table{
+            text-align: center;
+        }
+        div{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+            padding-top: 10px;
+        }
+        table{
+            padding-bottom: 10px;
+            padding-left: 20px;
+            align-content: center;
+        }
+    </style>
+
+</head>
+<body style="background-image: url('../img/timg.jpg')">
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">欢迎管理员：
+                <span id="user-name-label"></span>
+            </a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a id="checkout" href="#" onclick="checkout()">退出登录</a></li>
+                <li><a href="adminUserCenter.html">用户中心</a></li>
+                <li><a href="showAllStudentsMsg.html">学生信息管理中心</a></li>
+                <li><a href="showAllTeachersMsg.html">教师信息管理中心</a></li>
+                <li><a href="adminSeeStudentChooseCourseMsg.html">学生选课中心</a></li>
+                <li><a href="courseMsgCenter.html">课程管理中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<br>
+<div>
+    <span>学生信息展示页面</span>
+</div>
+
+<div>
+<table border="1px" cellspacing="0" >
+    <tr>
+        <th>id</th>
+        <th>学号</th>
+        <th>姓名</th>
+        <th>年龄</th>
+        <th>性别</th>
+        <th>专业</th>
+        <th>院系</th>
+        <th>学校</th>
+        <th>更新时间</th>
+        <th>
+            操作
+        </th>
+    </tr>
+    <tbody id="tr_td">
+
+    </tbody>
+
+</table>
+</div>
+
+<div>
+    <input type="button" id="tj" value="查询">
+</div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+                <h4 class="modal-title" id="myModalLabel">修改学生信息</h4>
+            </div>
+
+            <div>
+                <span hidden>id：</span>
+                <input type="number" id="studentId" value="" hidden>
+            </div>
+
+            <div>
+                <span>学号：</span>
+                <input type="number" id="number" value="">
+                <span id="number1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>姓名：</span>
+                <input type="text" id="username">
+                <span id="username1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>年龄：</span>
+                <input type="text" id="age">
+                <span id="age1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>性别：</span>
+                <input type="text" id="sex">
+                <span id="sex1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>专业：</span>
+                <input type="text" id="major">
+                <span id="major1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>院系：</span>
+                <input type="text" id="colleage">
+                <span id="colleage1" style="color: brown;"></span>
+            </div>
+
+            <div>
+                <span>学校：</span>
+                <input type="text" id="school">
+                <span id="school1" style="color: brown;"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateStudentMsg()">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+
+        //从session中获取登陆用户，并显示用户名
+        $.ajax({
+            type: "GET",
+            url: "/user/userMsg",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data.name);
+                // debugger
+                $("#user-name-label").html(data.name)
+            }
+        });
+
+        //从数据库中循环获取所有学生信息，并显示
+        $("#tj").click(function() {
+            var html ="";
+            $.ajax({
+                type: "GET",
+                url: "/student/showAllStudentsMsg",
+                dataType: "json", //return dataType: text or json
+                success: function(data) {
+                    // console.log(data)
+                    for (var i=0;i<data.data.length;i++){
+                        var id = data.data[i].id;
+                        var number = data.data[i].number;
+                        var name = data.data[i].name;
+                        var age = data.data[i].age;
+                        var sex = data.data[i].sex;
+                        var major = data.data[i].major;
+                        var colleage = data.data[i].colleage;
+                        var school = data.data[i].school;
+                        var time = data.data[i].updateTime
+
+                        html += "<tr id='bottom-text'>";
+                        html += "<td>";
+                        html += id;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += number;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += name;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += age;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += sex;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += major;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += colleage;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += school;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += time;
+                        html += "</td>";
+
+                        html += "<td>";
+                        html += "<input type='button' id='updateButton' value='修改' onclick='toUpdate(event)' data-toggle='modal' data-target='#myModal'>";
+                        html += "<input type='button' id='deleteButton' value='删除' onclick='deleteStudentMsg(event)'>";
+                        html += "</td>";
+
+                        html += "</tr>";
+
+                    }
+                    $("#tr_td").html(html);
+
+                },
+                error: function(json) {
+                    alert("json=" + json);
+                    return false;
+                }
+            });
+        });
+
+    });
+
+    //点击"修改"按钮，触发该函数
+    function toUpdate(event) {
+
+        event.target; //获取事件发生的位置
+        var id = $(event.target).parents('tr').eq(0).find('td').eq(0).text(); //获取对应的信息的id
+
+
+        //按照id从后台查询该学生的信息。
+        $.ajax({
+            type: "GET",
+            url: "/student/toUpdate",
+            dataType: "json", //return dataType: text or json
+            data: {"id":id},
+            contentType: "application/json",
+            success: function (data) {
+
+                //将从后台查取到的值显示到模态框中
+                $("#studentId").attr("value",data.data.id);
+                $("#number").attr("value",data.data.number);
+                $("#username").attr("value",data.data.name);
+                $("#age").attr("value",data.data.age);
+                $("#sex").attr("value",data.data.sex);
+                $("#major").attr("value",data.data.major);
+                $("#colleage").attr("value",data.data.colleage);
+                $("#school").attr("value",data.data.school);
+            }
+
+        });
+
+    };
+
+    //点击”提交更改“触发的函数
+    function updateStudentMsg() {
+
+        var id = $("#studentId").val();
+        var number = $("#number").val();
+        var username = $("#username").val();
+        var age = $("#age").val();
+        var sex = $("#sex").val();
+        var major = $("#major").val();
+        var colleage = $("#colleage").val();
+        var school = $("#school").val();
+
+        //更新表记录
+        $.ajax({
+            type: "POST",
+            url: "/student/updateStudentMsg",
+            dataType: "json", //return dataType: text or json
+            data : JSON.stringify({"id":id,"number":number,"name":username,"age":age,"sex":sex,"major":major,"colleage":colleage,"school":school}),
+            contentType: "application/json",
+            success: function(data) {
+                console.log(data);
+                // debugger
+                if (data.message==="success"){
+                    alert("修改成功！");
+                    window.location.reload();
+                }else  {
+                    alert(data.data);
+                }
+            }
+        });
+
+    };
+
+    //点击”删除“按钮，触发该函数
+    function deleteStudentMsg(event) {
+
+        event.target; //获取事件发生的位置
+        var id = $(event.target).parents('tr').eq(0).find('td').eq(0).text(); //获取对应的信息的id
+
+        //更新删除字段
+        $.ajax({
+            type: "POST",
+            url: "/student/deleteStudentMsg",
+            dataType: "json", //return dataType: text or json
+            data : JSON.stringify({"id":id}),
+            contentType: "application/json",
+            success: function(data) {
+                console.log(data);
+                // debugger
+                if (data.message==="success"){
+                    alert("删除成功！");
+                    window.location.reload();
+                }else  {
+                    alert(data.data);
+                }
+            }
+        });
+    }
+
+    /*退出登录的ajax*/
+    function checkout() {
+        $.ajax({
+            type: "GET",
+            url: "/user/checkout",
+            dataType: "json", //return dataType: text or json
+            data: null,
+            contentType: "application/json",
+            success: function (data) {
+                if(data.message=="200"){
+                    alert("退出成功，即将跳转回登陆界面");
+                    window.location.href = "../student/login.html";
+                }else {
+                    alert("服务器错误，请联系管理员");
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
